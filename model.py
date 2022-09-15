@@ -22,9 +22,9 @@ class BaseModel:
         # translate
         m_model = glm.translate(m_model, self.pos)
         # rotate
-        m_model = glm.rotate(m_model, self.rot.x, glm.vec3(1, 0, 0))
-        m_model = glm.rotate(m_model, self.rot.y, glm.vec3(0, 1, 0))
         m_model = glm.rotate(m_model, self.rot.z, glm.vec3(0, 0, 1))
+        m_model = glm.rotate(m_model, self.rot.y, glm.vec3(0, 1, 0))
+        m_model = glm.rotate(m_model, self.rot.x, glm.vec3(1, 0, 0))
         # scale
         m_model = glm.scale(m_model, self.scale)
         return m_model
