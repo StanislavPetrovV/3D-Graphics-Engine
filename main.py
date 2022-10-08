@@ -6,6 +6,7 @@ from camera import Camera
 from light import Light
 from mesh import Mesh
 from scene import Scene
+from scene_renderer import SceneRenderer
 
 
 class GraphicsEngine:
@@ -39,11 +40,14 @@ class GraphicsEngine:
         self.mesh = Mesh(self)
         # scene
         self.scene = Scene(self)
+        # renderer
+        self.scene_renderer = SceneRenderer(self)
 
     def check_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 self.mesh.destroy()
+                self.scene_renderer.destroy()
                 pg.quit()
                 sys.exit()
 
@@ -51,7 +55,7 @@ class GraphicsEngine:
         # clear framebuffer
         self.ctx.clear(color=(0.08, 0.16, 0.18))
         # render scene
-        self.scene.render()
+        self.scene_renderer.render()
         # swap buffers
         pg.display.flip()
 

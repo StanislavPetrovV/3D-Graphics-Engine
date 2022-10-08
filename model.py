@@ -7,6 +7,7 @@ class BaseModel:
     def __init__(self, app, vao_name, tex_id, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
         self.app = app
         self.pos = pos
+        self.vao_name = vao_name
         self.rot = glm.vec3([glm.radians(a) for a in rot])
         self.scale = scale
         self.m_model = self.get_model_matrix()
@@ -40,16 +41,36 @@ class ExtendedBaseModel(BaseModel):
         self.on_init()
 
     def update(self):
-        self.texture.use()
+        self.texture.use(location=0)
         self.program['camPos'].write(self.camera.position)
         self.program['m_view'].write(self.camera.m_view)
         self.program['m_model'].write(self.m_model)
 
+    def update_shadow(self):
+        self.shadow_program['m_model'].write(self.m_model)
+
+    def render_shadow(self):
+        self.update_shadow()
+        self.shadow_vao.render()
+
     def on_init(self):
+        self.program['m_view_light'].write(self.app.light.m_view_light)
+        # resolution
+        self.program['u_resolution'].write(glm.vec2(self.app.WIN_SIZE))
+        # depth texture
+        self.depth_texture = self.app.mesh.texture.textures['depth_texture']
+        self.program['shadowMap'] = 1
+        self.depth_texture.use(location=1)
+        # shadow
+        self.shadow_vao = self.app.mesh.vao.vaos['shadow_' + self.vao_name]
+        self.shadow_program = self.shadow_vao.program
+        self.shadow_program['m_proj'].write(self.camera.m_proj)
+        self.shadow_program['m_view_light'].write(self.app.light.m_view_light)
+        self.shadow_program['m_model'].write(self.m_model)
         # texture
         self.texture = self.app.mesh.texture.textures[self.tex_id]
         self.program['u_texture_0'] = 0
-        self.texture.use()
+        self.texture.use(location=0)
         # mvp
         self.program['m_proj'].write(self.camera.m_proj)
         self.program['m_view'].write(self.camera.m_view)
@@ -64,6 +85,15 @@ class ExtendedBaseModel(BaseModel):
 class Cube(ExtendedBaseModel):
     def __init__(self, app, vao_name='cube', tex_id=0, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
         super().__init__(app, vao_name, tex_id, pos, rot, scale)
+
+
+class MovingCube(Cube):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def update(self):
+        self.m_model = self.get_model_matrix()
+        super().update()
 
 
 class Cat(ExtendedBaseModel):

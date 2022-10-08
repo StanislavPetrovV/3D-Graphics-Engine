@@ -1,16 +1,25 @@
 import pygame as pg
 import moderngl as mgl
+import glm
 
 
 class Texture:
-    def __init__(self, ctx):
-        self.ctx = ctx
+    def __init__(self, app):
+        self.app = app
+        self.ctx = app.ctx
         self.textures = {}
         self.textures[0] = self.get_texture(path='textures/img.png')
         self.textures[1] = self.get_texture(path='textures/img_1.png')
         self.textures[2] = self.get_texture(path='textures/img_2.png')
         self.textures['cat'] = self.get_texture(path='objects/cat/20430_cat_diff_v1.jpg')
         self.textures['skybox'] = self.get_texture_cube(dir_path='textures/skybox1/', ext='png')
+        self.textures['depth_texture'] = self.get_depth_texture()
+
+    def get_depth_texture(self):
+        depth_texture = self.ctx.depth_texture(self.app.WIN_SIZE)
+        depth_texture.repeat_x = False
+        depth_texture.repeat_y = False
+        return depth_texture
 
     def get_texture_cube(self, dir_path, ext='png'):
         faces = ['right', 'left', 'top', 'bottom'] + ['front', 'back'][::-1]
